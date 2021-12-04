@@ -3,17 +3,19 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class Day4 {
 
     public static void main(String[] args) {
         Game game = new Game("day4.txt");
-        game.play();
+        System.out.println(game.playForWin());
+        System.out.println(game.playForDefeat());
     }
 
     private static class Game {
 
-        private String[] drawnNumbers;
+        private int[] drawnNumbers;
         private List<Bingo> boards = new ArrayList<>();
         private int side;
 
@@ -23,7 +25,7 @@ public class Day4 {
 
         private void init(String path) {
             try (Scanner sc = new Scanner(new File(path))) {
-                drawnNumbers = sc.nextLine().split(",");
+                drawnNumbers = convertToInt(sc.nextLine().split(","));
                 while (sc.hasNext()) {
                     sc.nextLine();
                     String l = sc.nextLine().trim();
@@ -43,8 +45,48 @@ public class Day4 {
             }
         }
 
-        public int play() {
+        public int playForWin() {
+            for (int number : drawnNumbers) {
+                for (Bingo bingo : boards) {
+                    bingo.drawANumber(number);
+                    if (bingo.isWinningBoard()) {
+                        return countFinalScore(bingo, number);
+                    }
+                }
+            }
             return 0;
+        }
+
+        public int playForDefeat() {
+            int numberOfBoards = boards.size();
+            for (int number : drawnNumbers) {
+                Bingo last = boards.get(0);
+                boards = boards.stream().filter(bingo -> {
+                    bingo.drawANumber(number);
+                    return !bingo.isWinningBoard();
+                }).collect(Collectors.toList());
+                if (boards.size() == 0) {
+                    return countFinalScore(last, number);
+                }
+
+            }
+            return 0;
+        }
+
+        private int countFinalScore(Bingo bingo, int number) {
+            int score = createSumOfItems(bingo.getBoard()) - createSumOfItems(bingo.getMarkedNumbers());
+            return score * number;
+        }
+
+        private int createSumOfItems(int[][] array) {
+            int sum = 0;
+            int n = array.length;
+            for (int i = 0; i < n; i++) {
+                for (int j = 0; j < n; j++) {
+                    sum += array[i][j];
+                }
+            }
+            return sum;
         }
 
         private int[] convertToInt(String[] array) {
@@ -55,8 +97,6 @@ public class Day4 {
             }
             return res;
         }
-
-
     }
 
     private static class Bingo {
@@ -66,6 +106,7 @@ public class Day4 {
 
         public Bingo(int side) {
             board = new int[side][side];
+            markedNumbers = new int[side][side];
         }
 
         public void drawANumber(int number) {
@@ -87,10 +128,11 @@ public class Day4 {
 
         private boolean examineRows() {
             int side = board.length;
+            outer:
             for (int i = 0; i < side; i++) {
                 for (int j = 0; j < side; j++) {
-                    if (markedNumbers[i][j] == 0) {
-                        break;
+                    if (markedNumbers[i][j] != board[i][j]) {
+                        continue outer;
                     }
                 }
                 return true;
@@ -100,10 +142,11 @@ public class Day4 {
 
         private boolean examineColumns() {
             int side = board.length;
+            outer:
             for (int i = 0; i < side; i++) {
                 for (int j = 0; j < side; j++) {
-                    if (markedNumbers[j][i] == 0) {
-                        break;
+                    if (markedNumbers[j][i] != board[j][i]) {
+                        continue outer;
                     }
                 }
                 return true;

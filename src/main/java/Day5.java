@@ -1,8 +1,83 @@
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Scanner;
 
 public class Day5 {
 
-    private class Vent {
+    public static void main(String[] args) {
+        ReviewVents reviewVents = new ReviewVents("day5.txt");
+        System.out.println(reviewVents.review());
+    }
+
+    private static class ReviewVents {
+
+        private Map<Vent, Integer> vents = new HashMap<>();
+        private String path;
+
+        public ReviewVents(String path) {
+            this.path = path;
+        }
+
+        public int review() {
+            readData();
+            return countOverlaps();
+        }
+
+        private int countOverlaps() {
+            return (int) vents.values().stream().filter(n -> n > 1).count();
+        }
+
+        public void readData() {
+            try (Scanner sc = new Scanner(new File(path))) {
+                while (sc.hasNext()) {
+                    String[] data = sc.nextLine().split(" -> ");
+                    int x1 = Integer.parseInt(data[0].split(",")[0]);
+                    int y1 = Integer.parseInt(data[0].split(",")[1]);
+                    int x2 = Integer.parseInt(data[1].split(",")[0]);
+                    int y2 = Integer.parseInt(data[1].split(",")[1]);
+                    if (x1 == x2) {
+                        horizontal(x1, y1, y2);
+                    } else if (y1 == y2) {
+                        vertical(x1, y1, x2);
+                    }
+                }
+            } catch (FileNotFoundException e) {
+                System.out.println("File not found: " + path);
+            }
+        }
+
+        private void vertical(int x1, int y1, int x2) {
+            if (x1 > x2) {
+                int temp = x1;
+                x1 = x2;
+                x2 = temp;
+            }
+            for (int i = x1; i <= x2; i++) {
+                Vent vent = new Vent(i, y1);
+                int value = vents.containsKey(vent) ? vents.get(vent) : 0;
+                vents.put(vent, value + 1);
+            }
+        }
+
+        private void horizontal(int x1, int y1, int y2) {
+            if (y1 > y2) {
+                int temp = y1;
+                y1 = y2;
+                y2 = temp;
+            }
+            for (int i = y1; i <= y2; i++) {
+                Vent vent = new Vent(x1, i);
+                int value = vents.containsKey(vent) ? vents.get(vent) : 0;
+                vents.put(vent, value + 1);
+            }
+        }
+
+    }
+
+    private static class Vent {
 
         private int x;
         private int y;

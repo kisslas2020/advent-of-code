@@ -38,14 +38,56 @@ public class Day5 {
                     int y1 = Integer.parseInt(data[0].split(",")[1]);
                     int x2 = Integer.parseInt(data[1].split(",")[0]);
                     int y2 = Integer.parseInt(data[1].split(",")[1]);
-                    if (x1 == x2) {
-                        horizontal(x1, y1, y2);
-                    } else if (y1 == y2) {
-                        vertical(x1, y1, x2);
-                    }
+                    separateByDirection(x1, y1, x2, y2);
                 }
             } catch (FileNotFoundException e) {
                 System.out.println("File not found: " + path);
+            }
+        }
+
+        private void separateByDirection(int x1, int y1, int x2, int y2) {
+            if (x1 == x2) {
+                horizontal(x1, y1, y2);
+            } else if (y1 == y2) {
+                vertical(x1, y1, x2);
+            } else if ((x1 - x2) == (y1 - y2)) {
+                fromTopToBottom(x1, y1, x2, y2);
+            } else if ((x2 - x1) == (y1 - y2)) {
+                fromBottomToTop(x1, y1, x2, y2);
+            }
+        }
+
+        private void fromBottomToTop(int x1, int y1, int x2, int y2) {
+            if (x1 > x2) {
+                int tempX = x1;
+                x1 = x2;
+                x2 = tempX;
+                int tempY = y1;
+                y1 = y2;
+                y2 = tempY;
+            }
+            int len = x2 - x1 + 1;
+            for (int i = 0; i < len; i++) {
+                Vent vent = new Vent(x1 + i, y1 - i);
+                int value = vents.containsKey(vent) ? vents.get(vent) : 0;
+                vents.put(vent, value + 1);
+            }
+        }
+
+        private void fromTopToBottom(int x1, int y1, int x2, int y2) {
+            if (x1 > x2) {
+                int tempX = x1;
+                x1 = x2;
+                x2 = tempX;
+                int tempY = y1;
+                y1 = y2;
+                y2 = tempY;
+            }
+            int len = x2 - x1 + 1;
+            for (int i = 0; i < len; i++) {
+                Vent vent = new Vent(x1 + i, y1 + i);
+                int value = vents.containsKey(vent) ? vents.get(vent) : 0;
+                vents.put(vent, value + 1);
             }
         }
 

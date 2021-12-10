@@ -6,14 +6,34 @@ public class Day10 {
 
     private static Map<String, String> collection = new HashMap<>();
     private static Map<String, Integer> score = new HashMap<>();
-
-
-
-
+    private static List<String> completions = new ArrayList<>();
 
     public static void main(String[] args) {
-        int sum = partOne("src/main/resources/day10example.txt");
+        init();
+        int sum = partOne("src/main/resources/day10.txt");
         System.out.println("Total syntax error score: " + sum);
+        long middleScore = calculateMiddleScore();
+        System.out.println("Middle score: " + middleScore);
+    }
+
+    private static long calculateMiddleScore() {
+        List<Long> scores = new ArrayList<>();
+        Map<String, Integer> values = new HashMap<>();
+        values.put(")", 1);
+        values.put("]", 2);
+        values.put("}", 3);
+        values.put(">", 4);
+        for (String line : completions) {
+            String[] brackets = line.split("");
+            long sum = 0L;
+            for (String bracket : brackets) {
+                sum = sum * 5 + values.get(bracket);
+            }
+            scores.add(sum);
+        }
+        scores.sort(Comparator.naturalOrder());
+        int length = scores.size();
+        return scores.get(length / 2);
     }
 
     private static void init() {
@@ -46,13 +66,21 @@ public class Day10 {
         String[] brackets = line.split("");
         Stack<String> stack = new Stack<>();
         for (String s : brackets) {
-            System.out.println(s);
             if (collection.containsKey(s)) {
                 stack.add(s);
             } else if (stack.empty() || !collection.get(stack.pop()).equals(s)){
                 return s;
             }
         }
+        buildCompletion(line, stack);
         return "";
+    }
+
+    private static void buildCompletion(String line, Stack<String> stack) {
+        StringBuilder sb = new StringBuilder();
+        while (!stack.empty()) {
+            sb.append(collection.get(stack.pop()));
+        }
+        completions.add(String.valueOf(sb));
     }
 }

@@ -10,12 +10,32 @@ public class Day11 {
     private static Octopus[][] octopuses;
 
     public static void main(String[] args) {
-        readFile("src/main/resources/day11example.txt");
+        String path = "src/main/resources/day11.txt";
+        partOne(path, 100);
+        partTwo(path);
+    }
+
+    private static void partOne(String path, int steps) {
+        readFile(path);
         int numberOfFlashes = 0;
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < steps; i++) {
             numberOfFlashes += singleStep();
-            printStanding(i + 1, numberOfFlashes);
         }
+        printStanding(steps, numberOfFlashes);
+    }
+
+    private static void partTwo(String path) {
+        readFile(path);
+        int step = 0;
+        while (true) {
+            singleStep();
+            step++;
+            int sumOfValues = Arrays.stream(octopuses).mapToInt(row -> Arrays.stream(row).mapToInt(o -> o.getValue()).sum()).sum();
+            if (sumOfValues == 0) {
+                break;
+            }
+        }
+        System.out.printf("All octopus flash simultaneously in the %d step.", step);
     }
 
     private static void readFile(String path) {

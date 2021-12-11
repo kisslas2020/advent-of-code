@@ -11,20 +11,46 @@ public class Day11 {
 
     public static void main(String[] args) {
         readFile("src/main/resources/day11example.txt");
-        for (int i = 0; i < 10; i++) {
-            singleStep();
-            printStanding();
+        int numberOfFlashes = 0;
+        for (int i = 0; i < 100; i++) {
+            numberOfFlashes += singleStep();
+            printStanding(i + 1, numberOfFlashes);
         }
     }
 
-    private static void printStanding() {
-        for (int i = 0; i < octopuses.length; i++) {
-            for (int j = 0; j < octopuses[0].length; j++) {
-                System.out.print(" " + octopuses[i][j].getValue());
+    private static void readFile(String path) {
+        int rows = 0;
+        int cols = 0;
+        try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (rows == 0) {
+                    rows = line.length();
+                }
+                cols++;
             }
-            System.out.println();
+        } catch (FileNotFoundException e) {
+            System.out.println("File not found: " + path);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        System.out.println();
+        loadData(rows, cols, path);
+    }
+
+    private static void loadData(int rows, int cols, String path) {
+        octopuses = new Octopus[rows][cols];
+        try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
+            for (int y = 0; y < rows; y++) {
+                for (int x = 0; x < cols; x++) {
+                    octopuses[y][x] = new Octopus(y, x, reader.read() - 48);
+                }
+                reader.readLine();
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("File not found: " + path);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private static int singleStep() {
@@ -74,39 +100,16 @@ public class Day11 {
         }
     }
 
-    private static void readFile(String path) {
-        int rows = 0;
-        int cols = 0;
-        try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (rows == 0) {
-                    rows = line.length();
-                }
-                cols++;
+    private static void printStanding(int row, int numberOfFlashes) {
+        for (int i = 0; i < octopuses.length; i++) {
+            for (int j = 0; j < octopuses[0].length; j++) {
+                System.out.print(" " + octopuses[i][j].getValue());
             }
-        } catch (FileNotFoundException e) {
-            System.out.println("File not found: " + path);
-        } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println();
         }
-        loadData(rows, cols, path);
-    }
-
-    private static void loadData(int rows, int cols, String path) {
-        octopuses = new Octopus[rows][cols];
-        try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
-            for (int y = 0; y < rows; y++) {
-                for (int x = 0; x < cols; x++) {
-                    octopuses[y][x] = new Octopus(y, x, reader.read() - 48);
-                }
-                reader.readLine();
-            }
-        } catch (FileNotFoundException e) {
-            System.out.println("File not found: " + path);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        System.out.println();
+        System.out.printf("Number of flashes after %d steps: %d", row, numberOfFlashes);
+        System.out.println();
     }
 
 }

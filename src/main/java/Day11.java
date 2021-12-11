@@ -11,7 +11,20 @@ public class Day11 {
 
     public static void main(String[] args) {
         readFile("src/main/resources/day11example.txt");
-        singleStep();
+        for (int i = 0; i < 10; i++) {
+            singleStep();
+            printStanding();
+        }
+    }
+
+    private static void printStanding() {
+        for (int i = 0; i < octopuses.length; i++) {
+            for (int j = 0; j < octopuses[0].length; j++) {
+                System.out.print(" " + octopuses[i][j].getValue());
+            }
+            System.out.println();
+        }
+        System.out.println();
     }
 
     private static int singleStep() {

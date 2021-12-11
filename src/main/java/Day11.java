@@ -2,6 +2,8 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Day11 {
 
@@ -9,6 +11,39 @@ public class Day11 {
 
     public static void main(String[] args) {
         readFile("src/main/resources/day11example.txt");
+        singleStep();
+    }
+
+    private static int singleStep() {
+        Arrays.stream(octopuses).forEach(row -> Arrays.stream(row).forEach(o -> {
+            o.setCanFlash(true);
+            o.setValue(o.getValue() + 1);
+        }));
+        int numberOfFlashes = 0;
+        while (true) {
+            int newFlashes = checkFlashes();
+            if (newFlashes == 0) {
+                return numberOfFlashes;
+            }
+            numberOfFlashes += newFlashes;
+        }
+    }
+
+    private static int checkFlashes() {
+        AtomicInteger numberOfFlashes = new AtomicInteger();
+        Arrays.stream(octopuses).forEach(row -> Arrays.stream(row).forEach(o -> {
+            if (o.getValue() > 9) {
+                numberOfFlashes.getAndIncrement();
+                o.setValue(0);
+                o.setCanFlash(false);
+                increaseNeighbors(o);
+            }
+        }));
+        return numberOfFlashes.get();
+    }
+
+    private static void increaseNeighbors(Octopus o) {
+        
     }
 
     private static void readFile(String path) {

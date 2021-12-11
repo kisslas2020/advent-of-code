@@ -16,26 +16,6 @@ public class Day10 {
         System.out.println("Middle score: " + middleScore);
     }
 
-    private static long calculateMiddleScore() {
-        List<Long> scores = new ArrayList<>();
-        Map<String, Integer> values = new HashMap<>();
-        values.put(")", 1);
-        values.put("]", 2);
-        values.put("}", 3);
-        values.put(">", 4);
-        for (String line : completions) {
-            String[] brackets = line.split("");
-            long sum = 0L;
-            for (String bracket : brackets) {
-                sum = sum * 5 + values.get(bracket);
-            }
-            scores.add(sum);
-        }
-        scores.sort(Comparator.naturalOrder());
-        int length = scores.size();
-        return scores.get(length / 2);
-    }
-
     private static void init() {
         collection.put("(", ")");
         collection.put("[", "]");
@@ -82,5 +62,25 @@ public class Day10 {
             sb.append(collection.get(stack.pop()));
         }
         completions.add(String.valueOf(sb));
+    }
+
+    private static long calculateMiddleScore() {
+        List<Long> scores = new ArrayList<>();
+        Map<String, Integer> values = new HashMap<>();
+        values.put(")", 1);
+        values.put("]", 2);
+        values.put("}", 3);
+        values.put(">", 4);
+        for (String line : completions) {
+            String[] brackets = line.split("");
+            long sum = 0L;
+            for (String bracket : brackets) {
+                sum = sum * 5 + values.get(bracket);
+            }
+            scores.add(sum);
+        }
+        scores.sort(Comparator.naturalOrder());
+        int length = scores.size();
+        return scores.get(length / 2);
     }
 }

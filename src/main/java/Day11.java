@@ -17,7 +17,7 @@ public class Day11 {
     private static int singleStep() {
         Arrays.stream(octopuses).forEach(row -> Arrays.stream(row).forEach(o -> {
             o.setCanFlash(true);
-            o.setValue(o.getValue() + 1);
+            o.incrementValue();
         }));
         int numberOfFlashes = 0;
         while (true) {
@@ -43,7 +43,22 @@ public class Day11 {
     }
 
     private static void increaseNeighbors(Octopus o) {
-        
+        int y = o.getY();
+        int x = o.getX();
+        int rows = octopuses.length;
+        int cols = octopuses[0].length;
+        int upRow = y > 0 ? y - 1 : y;
+        int downRow = y < rows - 1 ? y + 1 : y;
+        int leftCol = x > 0 ? x - 1 : x;
+        int rightCol = x < cols - 1 ? x + 1 : x;
+
+        for (int i = upRow; i <= downRow; i++) {
+            for (int j = leftCol; j <= rightCol; j++) {
+                if (!(i == y && j == x)) {
+                    octopuses[i][j].incrementValue();
+                }
+            }
+        }
     }
 
     private static void readFile(String path) {
@@ -95,6 +110,12 @@ class Octopus {
         this.x = x;
         this.value = value;
         this.canFlash = true;
+    }
+
+    public void incrementValue() {
+        if (this.canFlash) {
+            this.value++;
+        }
     }
 
     public int getY() {

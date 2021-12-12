@@ -7,15 +7,20 @@ import java.util.stream.Collectors;
 
 public class Day12 {
     
-    private static final List<String> routes = new ArrayList<>();
-    private static final List<Cave> caves = new ArrayList<>();
+    private static List<String> routes;
+    private static List<Cave> caves;
+    private static Cave joker = null;
+
 
     public static void main(String[] args) {
         String path = "src/main/resources/day12.txt";
-        PartOne(path);
+        //partOne(path);
+        partTwo(path);
     }
 
-    private static void PartOne(String path) {
+    private static void partOne(String path) {
+        routes = new ArrayList<>();
+        caves = new ArrayList<>();
         Stack<Cave> route = new Stack<>();
         loadCaves(path);
         Cave start = caves.stream().filter(c -> c.getName().equals("start")).findFirst().get();
@@ -23,7 +28,25 @@ public class Day12 {
         route.add(start);
         findNextStep(route, start);
         System.out.printf("The number of paths is %d.", routes.size());
+    }
 
+    private static void partTwo(String path) {
+        routes = new ArrayList<>();
+        caves = new ArrayList<>();
+        loadCaves(path);
+        Cave start = caves.stream().filter(c -> c.getName().equals("start")).findFirst().get();
+        start.setHasBeenVisited(true);
+        for (Cave cave : caves) {
+            if (!cave.isBig() && !cave.getName().equals("start") && !cave.getName().equals("end")) {
+                joker = new Cave(cave.getName());
+                Stack<Cave> route = new Stack<>();
+                caves.stream().forEach(c -> c.reset());
+                route.add(start);
+                findNextStep(route, start);
+            }
+        }
+
+        System.out.printf("The number of paths is %d.", routes.size());
     }
 
     private static void loadCaves(String path) {
@@ -58,9 +81,12 @@ public class Day12 {
             if ((cave.isHasBeenVisited() && !cave.isBig()) || prev.getVisitedCave().contains(cave)) {
                 continue;
             }
-            prev.visit(cave);
-            cave.setHasBeenVisited(true);
+            if (!cave.equals(joker) || (cave.equals(joker) && route.stream().filter(c -> c.equals(cave)).count() != 0)) {
+                prev.visit(cave);
+                cave.setHasBeenVisited(true);
+            }
             route.add(cave);
+            String r = route.stream().map(c -> c.getName()).collect(Collectors.joining(","));
             if (cave.getName().equals("end")) {
                 recordRoute(route);
                 cave.setHasBeenVisited(false);
@@ -69,13 +95,21 @@ public class Day12 {
             }
             findNextStep(route, cave);
         }
-        route.pop().setHasBeenVisited(false);
+        Cave remove = route.pop();
+        if (remove.equals(joker)) {
+            route.peek().removeFromVisitedList(remove);
+        }
+        remove.setHasBeenVisited(false);
         return;
     }
 
     private static void recordRoute(Stack<Cave> route) {
         String routeString = route.stream().map(r -> r.getName()).collect(Collectors.joining(","));
-        routes.add(routeString);
+        long count = routes.stream().filter(s -> s.equals(routeString)).count();
+        if (count == 0) {
+            System.out.println(routeString);
+            routes.add(routeString);
+        }
     }
 }
 
@@ -85,11 +119,12 @@ class Cave {
     private final boolean isBig;
     private boolean hasBeenVisited;
     private final List<String> neighbours = new ArrayList<>();
-    private final List<String> visitedCave = new ArrayList<>();
+    private List<String> visitedCave = new ArrayList<>();
 
     public Cave(String name) {
         this.name = name;
         this.isBig = name.equals(name.toUpperCase());
+        this.hasBeenVisited = false;
     }
 
     public void addNeighbor(String neighbor) {
@@ -98,6 +133,19 @@ class Cave {
 
     public void visit(Cave next) {
         visitedCave.add(next.getName());
+    }
+
+    public void removeFromVisitedList(Cave remove) {
+        visitedCave.remove(remove);
+    }
+
+    public void reset() {
+        if (!this.name.equals("start")) {
+            hasBeenVisited = false;
+            visitedCave = new ArrayList<>();
+        } else {
+            hasBeenVisited = true;
+        }
     }
 
     public String getName() {

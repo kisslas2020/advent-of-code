@@ -1,3 +1,7 @@
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -7,7 +11,34 @@ public class Day12 {
     private static final List<Cave> caves = new ArrayList<>();
 
     public static void main(String[] args) {
-        
+        String path = "src/main/resources/day12example1.txt";
+        PartOne(path);
+    }
+
+    private static void PartOne(String path) {
+        Queue<Cave> route = new LinkedList<>();
+        loadCaves(path);
+        findNextStep(route, caves.stream().filter(c -> c.getName().equals("start")).findFirst().get());
+    }
+
+    private static void loadCaves(String path) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                addNewCave(new Cave(line.split("-")[0]));
+                addNewCave(new Cave(line.split("-")[1]));
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("File not found: " + path);
+        } catch (IOException io) {
+            io.printStackTrace();
+        }
+    }
+
+    private static void addNewCave(Cave cave) {
+        if (!caves.contains(cave)) {
+            caves.add(cave);
+        }
     }
 
 

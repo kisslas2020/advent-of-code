@@ -12,11 +12,12 @@ public class Day12 {
 
 
     private static void findNextStep(Queue<Cave> route, Cave prev) {
-        for (String neighbor : prev.getNeighbors().keySet()) {
+        for (String neighbor : prev.getNeighbours()) {
             Cave cave = caves.stream().filter(c -> c.getName().equals(neighbor)).findFirst().get();
-            if (!canVisitCave()) {
+            if ((cave.isHasBeenVisited() && !cave.isBig()) || prev.getNeighbours().contains(cave)) {
                 continue;
             }
+            prev.visit(cave);
             route.offer(cave);
             if (cave.getName().equals("end")) {
                 return;
@@ -24,9 +25,6 @@ public class Day12 {
             findNextStep(route, cave);
         }
         return;
-    }
-
-    private static boolean canVisitCave() {
     }
 
     private static void recordRoute(Queue<Cave> route) {
@@ -39,11 +37,17 @@ class Cave {
 
     private final String name;
     private final boolean isBig;
-    private final Map<String, Boolean> neighbors = new HashMap<>();
+    private boolean hasBeenVisited;
+    private final List<String> neighbours = new ArrayList<>();
+    private final List<String> visitedCave = new ArrayList<>();
 
     public Cave(String name) {
         this.name = name;
         this.isBig = name.equals(name.toUpperCase());
+    }
+
+    public void visit(Cave next) {
+        visitedCave.add(next.getName());
     }
 
     public String getName() {
@@ -54,8 +58,20 @@ class Cave {
         return isBig;
     }
 
-    public Map<String, Boolean> getNeighbors() {
-        return neighbors;
+    public boolean isHasBeenVisited() {
+        return hasBeenVisited;
+    }
+
+    public void setHasBeenVisited(boolean hasBeenVisited) {
+        this.hasBeenVisited = hasBeenVisited;
+    }
+
+    public List<String> getVisitedCave() {
+        return visitedCave;
+    }
+
+    public List<String> getNeighbours() {
+        return neighbours;
     }
 
     @Override

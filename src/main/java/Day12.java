@@ -11,22 +11,29 @@ public class Day12 {
     private static final List<Cave> caves = new ArrayList<>();
 
     public static void main(String[] args) {
-        String path = "src/main/resources/day12example1.txt";
+        String path = "src/main/resources/day12.txt";
         PartOne(path);
     }
 
     private static void PartOne(String path) {
-        Queue<Cave> route = new LinkedList<>();
+        Stack<Cave> route = new Stack<>();
         loadCaves(path);
-        findNextStep(route, caves.stream().filter(c -> c.getName().equals("start")).findFirst().get());
+        Cave start = caves.stream().filter(c -> c.getName().equals("start")).findFirst().get();
+        start.setHasBeenVisited(true);
+        route.add(start);
+        findNextStep(route, start);
+        System.out.printf("The number of paths is %d.", routes.size());
+
     }
 
     private static void loadCaves(String path) {
         try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                addNewCave(new Cave(line.split("-")[0]));
-                addNewCave(new Cave(line.split("-")[1]));
+                Cave c1 = new Cave(line.split("-")[0]);
+                Cave c2 = new Cave(line.split("-")[1]);
+                addNewCave(c1, c2);
+                addNewCave(c2, c1);
             }
         } catch (FileNotFoundException e) {
             System.out.println("File not found: " + path);
@@ -35,30 +42,38 @@ public class Day12 {
         }
     }
 
-    private static void addNewCave(Cave cave) {
-        if (!caves.contains(cave)) {
-            caves.add(cave);
+    private static void addNewCave(Cave c1, Cave c2) {
+        if (!caves.contains(c1)) {
+            caves.add(c1);
+        } else {
+            Cave finalC = c1;
+            c1 = caves.stream().filter(c -> c.getName().equals(finalC.getName())).findFirst().get();
         }
+        c1.addNeighbor(c2.getName());
     }
 
-
-    private static void findNextStep(Queue<Cave> route, Cave prev) {
+    private static void findNextStep(Stack<Cave> route, Cave prev) {
         for (String neighbor : prev.getNeighbours()) {
             Cave cave = caves.stream().filter(c -> c.getName().equals(neighbor)).findFirst().get();
-            if ((cave.isHasBeenVisited() && !cave.isBig()) || prev.getNeighbours().contains(cave)) {
+            if ((cave.isHasBeenVisited() && !cave.isBig()) || prev.getVisitedCave().contains(cave)) {
                 continue;
             }
             prev.visit(cave);
-            route.offer(cave);
+            cave.setHasBeenVisited(true);
+            route.add(cave);
             if (cave.getName().equals("end")) {
-                return;
+                recordRoute(route);
+                cave.setHasBeenVisited(false);
+                route.pop();
+                continue;
             }
             findNextStep(route, cave);
         }
+        route.pop().setHasBeenVisited(false);
         return;
     }
 
-    private static void recordRoute(Queue<Cave> route) {
+    private static void recordRoute(Stack<Cave> route) {
         String routeString = route.stream().map(r -> r.getName()).collect(Collectors.joining(","));
         routes.add(routeString);
     }
@@ -75,6 +90,10 @@ class Cave {
     public Cave(String name) {
         this.name = name;
         this.isBig = name.equals(name.toUpperCase());
+    }
+
+    public void addNeighbor(String neighbor) {
+        neighbours.add(neighbor);
     }
 
     public void visit(Cave next) {

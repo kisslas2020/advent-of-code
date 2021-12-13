@@ -1,5 +1,67 @@
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+
 public class Day13 {
 
+    public static void main(String[] args) {
+        String path = "src/main/resources/day13example.txt";
+        partOne(path);
+    }
+
+    private static void partOne(String path) {
+        int[][] paper = makePaper(path, measure(path));
+        System.out.println("ready");
+    }
+
+    private static int[][] measure(String path) {
+        int maxX = 0;
+        int maxY = 0;
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(path))){
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.equals("")) {
+
+                } else if (line.startsWith("fold")) {
+
+                } else {
+                    int x = Integer.parseInt(line.split(",")[0]);
+                    int y = Integer.parseInt(line.split(",")[1]);
+                    maxX = x > maxX ? x : maxX;
+                    maxY = y > maxY ? y : maxY;
+                }
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("File not found: " + path);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new int[maxY + 1][maxX + 1];
+    }
+
+    private static int[][] makePaper(String path, int[][] paper) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(path))){
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.equals("")) {
+
+                } else if (line.startsWith("fold")) {
+
+                } else {
+                    int x = Integer.parseInt(line.split(",")[0]);
+                    int y = Integer.parseInt(line.split(",")[1]);
+                    paper[y][x] = 1;
+                }
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("File not found: " + path);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return paper;
+    }
 
 }
 

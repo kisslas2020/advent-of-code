@@ -13,9 +13,13 @@ public class Day16 {
         initMap();
         messageBinary = readMessage(path);
         outerPacket = nextPacket();
-        int sum = calculateSumOfVersions(outerPacket, 0);
-
-        System.out.println(sum);
+        long sum = calculateSumOfVersions(outerPacket, 0);
+        System.out.printf("The sum of version numbers is: %d", sum);
+        System.out.println();
+        calculateValueOfPacket(outerPacket);
+        long value = outerPacket.getLiteralValue();
+        System.out.printf("The value of the outermost packet is %d", value);
+        System.out.println();
     }
 
     private static void initMap() {
@@ -70,14 +74,14 @@ public class Day16 {
         int lengthTypeID = Integer.parseInt(messageBinary.substring(index, index + 1));
         index++;
         if (lengthTypeID == 0) {
-            int length = binaryToDecimal(messageBinary.substring(index, index + 15));
+            long length = binaryToDecimal(messageBinary.substring(index, index + 15));
             index += 15;
-            int limit = index + length;
+            long limit = index + length;
             while (limit > index) {
                 packet.addSubPacket(nextPacket());
             }
         } else if (lengthTypeID == 1) {
-            int number = binaryToDecimal(messageBinary.substring(index, index + 11));
+            long number = binaryToDecimal(messageBinary.substring(index, index + 11));
             index += 11;
             for (int i = 0; i < number; i++) {
                 packet.addSubPacket(nextPacket());
@@ -86,8 +90,8 @@ public class Day16 {
     }
 
     private static Packet nextPacket() {
-        int version = binaryToDecimal(messageBinary.substring(index, index + 3));
-        int typeID = binaryToDecimal(messageBinary.substring(index + 3, index + 6));
+        long version = binaryToDecimal(messageBinary.substring(index, index + 3));
+        long typeID = binaryToDecimal(messageBinary.substring(index + 3, index + 6));
         index += 6;
         Packet newPacket = new Packet(version, typeID);
         if (typeID == 4) {
@@ -98,17 +102,101 @@ public class Day16 {
         return newPacket;
     }
 
-    private static int calculateSumOfVersions(Packet packet, int sum) {
+    private static long calculateSumOfVersions(Packet packet, long sum) {
         for (Packet p : packet.getPackets()) {
             sum = calculateSumOfVersions(p, sum);
         }
         return sum + packet.getVersion();
     }
 
-    private static int binaryToDecimal(String binary) {
+    private static long calculateValueOfPacket(Packet packet) {
+        switch ((int) packet.getTypeId()) {
+            case 0:
+                return sumSubPackets(packet);
+            case 1:
+                return productSubPackets(packet);
+            case 2:
+                return miminumSubPackets(packet);
+            case 3:
+                return maximumSubPackets(packet);
+            case 4:
+                return packet.getLiteralValue();
+            case 5:
+                return greaterThatSubPackets(packet);
+            case 6:
+                return lessThanSubPackets(packet);
+            case 7:
+                return equalsSubPackets(packet);
+            default: return 0;
+        }
+    }
+
+    private static long sumSubPackets(Packet packet) {
+        long sum = 0L;
+        for (Packet p : packet.getPackets()) {
+            sum += calculateValueOfPacket(p);
+        }
+        packet.setLiteralValue(sum);
+        return sum;
+    }
+
+    private static long productSubPackets(Packet packet) {
+        long multi = 1L;
+        for (Packet p : packet.getPackets()) {
+            multi *= calculateValueOfPacket(p);
+        }
+        packet.setLiteralValue(multi);
+        return multi;
+    }
+
+    private static long miminumSubPackets(Packet packet) {
+        long minValue = Long.MAX_VALUE;
+        for (Packet p : packet.getPackets()) {
+            long value = calculateValueOfPacket(p);
+            minValue = value < minValue ? value : minValue;
+        }
+        packet.setLiteralValue(minValue);
+        return minValue;
+    }
+
+    private static long maximumSubPackets(Packet packet) {
+        long maxValue = Long.MIN_VALUE;
+        for (Packet p : packet.getPackets()) {
+            long value = calculateValueOfPacket(p);
+            maxValue = value > maxValue ? value : maxValue;
+        }
+        packet.setLiteralValue(maxValue);
+        return maxValue;
+    }
+
+    private static long greaterThatSubPackets(Packet packet) {
+        long firstValue = calculateValueOfPacket(packet.getPackets().get(0));
+        long secondValue = calculateValueOfPacket(packet.getPackets().get(1));
+        long res = firstValue > secondValue ? 1 : 0;
+        packet.setLiteralValue(res);
+        return res;
+    }
+
+    private static long lessThanSubPackets(Packet packet) {
+        long firstValue = calculateValueOfPacket(packet.getPackets().get(0));
+        long secondValue = calculateValueOfPacket(packet.getPackets().get(1));
+        long res = firstValue < secondValue ? 1 : 0;
+        packet.setLiteralValue(res);
+        return res;
+    }
+
+    private static long equalsSubPackets(Packet packet) {
+        long firstValue = calculateValueOfPacket(packet.getPackets().get(0));
+        long secondValue = calculateValueOfPacket(packet.getPackets().get(1));
+        long res = firstValue == secondValue ? 1 : 0;
+        packet.setLiteralValue(res);
+        return res;
+    }
+
+    private static long binaryToDecimal(String binary) {
         String num = binary;
-        int decimal = 0;
-        int base = 1;
+        long decimal = 0L;
+        long base = 1;
         int length = num.length();
         for (int i = length - 1; i >= 0; i--) {
             if (num.charAt(i) == '1') {
@@ -122,21 +210,21 @@ public class Day16 {
 
 class Packet {
 
-    private final int version;
-    private final int typeId;
-    private int literalValue;
+    private final long version;
+    private final long typeId;
+    private long literalValue;
     private final List<Packet> packets = new ArrayList<>();
 
-    public Packet(int version, int typeId) {
+    public Packet(long version, long typeId) {
         this.version = version;
         this.typeId = typeId;
     }
 
-    public int getVersion() {
+    public long getVersion() {
         return version;
     }
 
-    public int getTypeId() {
+    public long getTypeId() {
         return typeId;
     }
 
@@ -148,11 +236,11 @@ class Packet {
         packets.add(subPacket);
     }
 
-    public int getLiteralValue() {
+    public long getLiteralValue() {
         return literalValue;
     }
 
-    public void setLiteralValue(int literalValue) {
+    public void setLiteralValue(long literalValue) {
         this.literalValue = literalValue;
     }
 }

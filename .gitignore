@@ -11,7 +11,7 @@
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
-# Package Files #
+# Packet Files #
 *.jar
 *.war
 *.nar
@@ -70,7 +70,7 @@ buildNumber.properties
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
-# Package Files #
+# Packet Files #
 *.jar
 *.war
 *.nar

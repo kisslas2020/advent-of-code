@@ -1,5 +1,7 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -12,9 +14,10 @@ public class Day17 {
     private static int maxY;
 
     public static void main(String[] args) {
-        String path = "src/main/resources/day17example.txt";
+        String path = "src/main/resources/day17.txt";
         System.out.printf("The highest y position is %d.", partOne(path));
         System.out.println();
+        System.out.println(partTwo());
     }
 
     private static int partOne(String path) {
@@ -70,7 +73,7 @@ public class Day17 {
 
     private static int calculateY() {
         if (minY > 0) {
-            return minY;
+            return maxY;
         } else if (maxY < 0){
             return (-1 * minY) - 1;
         }
@@ -78,6 +81,45 @@ public class Day17 {
     }
 
     private static int partTwo() {
-        
+        List<int[]> coordinates = new ArrayList<>();
+        int xMinBase = maxX > 0 ? 0 : minX;
+        int xMaxBase = maxX > 0 ? maxX : 0;
+        int yMinBase = minY;
+        int yMaxBase = minY > 0 ? maxY : (-1 * minY) - 1;
+        for (int xBase = xMinBase; xBase <= xMaxBase; xBase++) {
+            for (int yBase = yMinBase; yBase <= yMaxBase; yBase++) {
+                int index = 0;
+                while (true) {
+                    int x = getXPosition(xBase, index);
+                    int y = getYPosition(yBase, index);
+                    if (x >= minX && x <= maxX && y >= minY && y <= maxY) {
+                        coordinates.add(new int[]{xBase, yBase});
+                        break;
+                    }
+                    if (x < xMinBase || y < yMinBase) {
+                        break;
+                    }
+                    index++;
+                }
+            }
+
+        }
+        return coordinates.size();
+    }
+
+    private static int getXPosition(int base, int index) {
+        int res = 0;
+        for (int i = 0; i < index; i++) {
+            res += base - i < 0 ? 0 : base - i;
+        }
+        return res;
+    }
+
+    private static int getYPosition(int base, int index) {
+        int res = 0;
+        for (int i = 0; i < index; i++) {
+            res += base - i;
+        }
+        return res;
     }
 }

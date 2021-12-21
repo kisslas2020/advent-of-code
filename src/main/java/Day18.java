@@ -46,24 +46,28 @@ public class Day18 {
         number = newNumber;
     }
 
-    private static void walk(Pairs pairs, int wrap) {
+    private static int walk(Pairs pairs, int wrap) {
         wrap++;
         for (int i = 0; i < 2; i++) {
             if (pairs.getPair()[i] != null) {
                 int n = pairs.getPair()[i];
                 if (wrap > 4) {
                     explode();
-                    return;
+                    return - 1;
                 }
                 if (pairs.getPair()[i] >= 10) {
                     split();
-                    return;
+                    return - 1;
                 }
             } else {
-                walk(pairs.getChild()[i], wrap);
+                int res = walk(pairs.getChild()[i], wrap);
+                if (res == -1) {
+                    return -1;
+                }
             }
 
         }
+        return 1;
     }
 
     private static void split() {

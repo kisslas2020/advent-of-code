@@ -52,11 +52,11 @@ public class Day18 {
             if (pairs.getPair()[i] != null) {
                 int n = pairs.getPair()[i];
                 if (wrap > 4) {
-                    explode();
+                    pairs.explode(i);
                     return - 1;
                 }
                 if (pairs.getPair()[i] >= 10) {
-                    split(pairs, i);
+                    pairs.split(i);
                     return - 1;
                 }
             } else {
@@ -69,23 +69,6 @@ public class Day18 {
         }
         return 1;
     }
-
-    private static void split(Pairs pairs, int i) {
-        Pairs newPairs = new Pairs();
-        int numberToSplit = pairs.getPair()[i];
-        int n0 = numberToSplit / 2;
-        int n1 = numberToSplit - n0;
-        newPairs.addNumber(n0, 0);
-        newPairs.addNumber(n1, 1);
-        newPairs.setParent(pairs);
-        pairs.addNumber(null, i);
-        pairs.addChild(newPairs, i);
-    }
-
-    private static void explode() {
-        
-    }
-
 
 }
 
@@ -103,6 +86,18 @@ class Pairs {
         this.pair[index] = number;
     }
 
+    public void split(int index) {
+        Pairs p = new Pairs();
+        int n = this.pair[index];
+        int n0 = n / 2;
+        int n1 = n - n0;
+        p.addNumber(n0, 0);
+        p.addNumber(n1, 1);
+        p.setParent(this);
+        this.addNumber(null, index);
+        this.addChild(p, index);
+    }
+
     public int calculateMagnitude() {
         int m0 = 0;
         int m1 = 0;
@@ -110,6 +105,8 @@ class Pairs {
         m1 = this.pair[1] == null ? this.child[1].calculateMagnitude() : this.pair[1];
         return 3 * m0 + 2 * m1;
     }
+
+
 
     public Pairs[] getChild() {
         return child;

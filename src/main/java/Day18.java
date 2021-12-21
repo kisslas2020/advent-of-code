@@ -56,7 +56,7 @@ public class Day18 {
                     return - 1;
                 }
                 if (pairs.getPair()[i] >= 10) {
-                    split();
+                    split(pairs, i);
                     return - 1;
                 }
             } else {
@@ -70,10 +70,20 @@ public class Day18 {
         return 1;
     }
 
-    private static void split() {
+    private static void split(Pairs pairs, int i) {
+        Pairs newPairs = new Pairs();
+        int numberToSplit = pairs.getPair()[i];
+        int n0 = numberToSplit / 2;
+        int n1 = numberToSplit - n0;
+        newPairs.addNumber(n0, 0);
+        newPairs.addNumber(n1, 1);
+        newPairs.setParent(pairs);
+        pairs.addNumber(null, i);
+        pairs.addChild(newPairs, i);
     }
 
     private static void explode() {
+        
     }
 
 
@@ -89,16 +99,16 @@ class Pairs {
         this.child[index] = child;
     }
 
-    public void addNumber(int number, int index) {
+    public void addNumber(Integer number, int index) {
         this.pair[index] = number;
     }
 
     public int calculateMagnitude() {
+        int m0 = 0;
         int m1 = 0;
-        int m2 = 0;
-        m1 = this.pair[0] == null ? this.child[0].calculateMagnitude() : this.pair[0];
-        m2 = this.pair[1] == null ? this.child[1].calculateMagnitude() : this.pair[1];
-        return 3 * m1 + 2 * m2;
+        m0 = this.pair[0] == null ? this.child[0].calculateMagnitude() : this.pair[0];
+        m1 = this.pair[1] == null ? this.child[1].calculateMagnitude() : this.pair[1];
+        return 3 * m0 + 2 * m1;
     }
 
     public Pairs[] getChild() {

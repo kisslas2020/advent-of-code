@@ -3,7 +3,7 @@ public class Day18 {
     static Pairs number;
 
     public static void main(String[] args) {
-        String str = "[[[[8,7],[7,7]],[[8,6],[7,7]]],[[[0,7],[6,6]],[8,7]]]";
+        String str = "[[[0,[5,8]],[[1,7],[9,6]]],[[4,[1,2]],[[1,4],2]]]";
         number = createPairs(str);
         walk(number, 0);
         int mag = number.calculateMagnitude();
@@ -48,13 +48,12 @@ public class Day18 {
 
     private static int walk(Pairs pairs, int wrap) {
         wrap++;
+        if (wrap > 4) {
+            pairs.explode();
+            return - 1;
+        }
         for (int i = 0; i < 2; i++) {
             if (pairs.getPair()[i] != null) {
-                int n = pairs.getPair()[i];
-                if (wrap > 4) {
-                    pairs.explode(i);
-                    return - 1;
-                }
                 if (pairs.getPair()[i] >= 10) {
                     pairs.split(i);
                     return - 1;
@@ -84,6 +83,12 @@ class Pairs {
 
     public void addNumber(Integer number, int index) {
         this.pair[index] = number;
+    }
+
+    public void explode() {
+        int n0 = this.pair[0];
+        int n1 = this.pair[1];
+
     }
 
     public void split(int index) {

@@ -15,7 +15,7 @@ public class Day18 {
             } else if (c.matches(",")) {
                 index = 1;
             } else if (c.matches("\\[")) {
-                Pairs next = new Pairs(new Integer[2]);
+                Pairs next = new Pairs();
                 if (number == null) {
                     number = next;
                     current = next;
@@ -33,7 +33,7 @@ public class Day18 {
     }
 
     private static void add(Pairs p1, Pairs p2) {
-        Pairs outer = new Pairs(new Integer[2]);
+        Pairs outer = new Pairs();
         outer.addChild(p1, 0);
         outer.addChild(p2, 1);
     }
@@ -66,11 +66,7 @@ class Pairs {
 
     private Pairs parent;
     private Pairs[] child = new Pairs[2];
-    private Integer[] pair;
-
-    public Pairs(Integer[] pair) {
-        this.pair = pair;
-    }
+    private Integer[] pair = new Integer[2];
 
     public void addChild(Pairs child, int index) {
         this.child[index] = child;

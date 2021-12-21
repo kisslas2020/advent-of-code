@@ -32,14 +32,10 @@ public class Day18 {
         System.out.println();
     }
 
-    private static String add(String s1, String s2) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("[")
-                .append(s1)
-                .append(",")
-                .append(s2)
-                .append("]");
-        return String.valueOf(sb);
+    private static void add(Pairs p1, Pairs p2) {
+        Pairs outer = new Pairs(new Integer[2]);
+        outer.addChild(p1, 0);
+        outer.addChild(p2, 1);
     }
 
     private static void walk(Pairs pairs, int wrap) {

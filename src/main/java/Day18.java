@@ -42,10 +42,25 @@ public class Day18 {
         return String.valueOf(sb);
     }
 
-    private static void walk(Pairs pairs) {
-        for (Pairs p : pairs.getChild()) {
-            
+    private static void walk(Pairs pairs, int wrap) {
+        for (int i = 0; i < 2; i++) {
+            if (pairs.getPair()[i] != null) {
+                if (wrap >= 4) {
+                    explode();
+                    return;
+                }
+                if (pairs.getPair()[i] >= 10) {
+                    split();
+                    return;
+                }
+            }
         }
+    }
+
+    private static void split() {
+    }
+
+    private static void explode() {
     }
 
 

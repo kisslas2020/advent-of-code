@@ -1,13 +1,64 @@
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
 public class Day18 {
 
     static Pairs number;
 
     public static void main(String[] args) {
-        String str = "[[[0,[5,8]],[[1,7],[9,6]]],[[4,[1,2]],[[1,4],2]]]";
-        number = createPairs(str);
-        walk(number, 0);
-        int mag = number.calculateMagnitude();
-        System.out.println();
+        String path = "src/main/resources/day18.txt";
+        System.out.println(partTwo(path));
+    }
+
+    private static int partOne(String path) {
+        try (Scanner sc = new Scanner(new File(path))) {
+            number = createPairs(sc.nextLine());
+            while (sc.hasNext()) {
+                String s = sc.nextLine();
+                add(createPairs(s));
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("File not found: " + path);
+        }
+        System.out.println(String.valueOf(print(number, new StringBuilder())));
+        return number.calculateMagnitude();
+    }
+
+    private static int partTwo(String path) {
+        List<String> allPairs = new ArrayList<>();
+        try (Scanner sc = new Scanner(new File(path))) {
+            while (sc.hasNext()) {
+                allPairs.add(sc.nextLine());
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("File not found: " + path);
+        }
+        int max = Integer.MIN_VALUE;
+        for (int i = 0; i < allPairs.size(); i++) {
+            for (int j = 0; j < allPairs.size(); j++) {
+                if (i == j) {
+                    continue;
+                }
+                String sum = "[" + allPairs.get(i) + "," + allPairs.get(j) + "]";
+                Pairs p = createPairs(sum);
+                int spl = -1;
+                while (spl < 0) {
+                    int res = -1;
+                    while (res < 0) {
+                        res = reduce(p, 0);
+                    }
+                    spl = splitOne(p);
+                }
+                int m = p.calculateMagnitude();
+                if (m > max) {
+                    max = m;
+                }
+            }
+        }
+        return max;
     }
 
     private static Pairs createPairs(String str) {
@@ -43,28 +94,67 @@ public class Day18 {
         Pairs newNumber = new Pairs();
         newNumber.addChild(number, 0);
         newNumber.addChild(p, 1);
+        number.setParent(newNumber);
+        p.setParent(newNumber);
         number = newNumber;
+        int spl = -1;
+        while (spl < 0) {
+            int res = -1;
+            while (res < 0) {
+                res = reduce(number, 0);
+            }
+            spl = splitOne(number);
+        }
     }
 
-    private static int walk(Pairs pairs, int wrap) {
-        wrap++;
-        if (wrap > 4) {
-            pairs.explode();
-            return - 1;
-        }
+
+
+    private static StringBuilder print(Pairs pairs, StringBuilder sb) {
+        sb.append("[");
         for (int i = 0; i < 2; i++) {
             if (pairs.getPair()[i] != null) {
-                if (pairs.getPair()[i] >= 10) {
-                    pairs.split(i);
-                    return - 1;
-                }
+                sb.append(pairs.getPair()[i]);
             } else {
-                int res = walk(pairs.getChild()[i], wrap);
+                print(pairs.getChild()[i], sb);
+            }
+            if (i == 0) {
+                sb.append(",");
+            }
+        }
+        sb.append("]");
+        return sb;
+    }
+
+    private static int reduce(Pairs pairs, int wrap) {
+        wrap++;
+        if (wrap > 4) {
+            pairs.getParent().explode(pairs);
+            return -1;
+        }
+        for (int i = 0; i < 2; i++) {
+            if (pairs.getChild()[i] != null) {
+                int res = reduce(pairs.getChild()[i], wrap);
                 if (res == -1) {
                     return -1;
                 }
             }
+        }
+        return 1;
+    }
 
+    private static int splitOne(Pairs pairs) {
+        for (int i = 0; i < 2; i++) {
+            if (pairs.getPair()[i] != null) {
+                if (pairs.getPair()[i] >= 10) {
+                    pairs.split(i);
+                    return -1;
+                }
+            } else {
+                int res = splitOne(pairs.getChild()[i]);
+                if (res == -1) {
+                    return -1;
+                }
+            }
         }
         return 1;
     }
@@ -85,10 +175,50 @@ class Pairs {
         this.pair[index] = number;
     }
 
-    public void explode() {
-        int n0 = this.pair[0];
-        int n1 = this.pair[1];
+    public void explode(Pairs from) {
+        int index = this.child[0] == from ? 0 : 1;
+        int n0 = from.getPair()[0];
+        int n1 = from.getPair()[1];
+        this.addFirst(n0, from);
+        this.addSecond(n1, from);
+        this.addChild(null, index);
+        this.addNumber(0, index);
+    }
 
+    private void addFirst(int n0, Pairs from) {
+        if (this.child[0] == from && this.parent != null) {
+            this.parent.addFirst(n0, this);
+        } else if (this.child[1] == from){
+            if (this.pair[0] != null) {
+                this.pair[0] += n0;
+            } else {
+                this.child[0].addFirst(n0, this);
+            }
+        } else if (this.parent == from) {
+            if (this.pair[1] != null) {
+                this.pair[1] += n0;
+            } else {
+                this.child[1].addFirst(n0, this);
+            }
+        }
+    }
+
+    private void addSecond(int n1, Pairs from) {
+        if (this.child[1] == from && this.parent != null) {
+            this.parent.addSecond(n1, this);
+        } else if (this.child[0] == from) {
+            if (this.pair[1] != null) {
+                this.pair[1] += n1;
+            } else {
+                this.child[1].addSecond(n1, this);
+            }
+        } else if (this.parent == from) {
+            if (this.pair[0] != null) {
+                this.pair[0] += n1;
+            } else {
+                this.child[0].addSecond(n1, this);
+            }
+        }
     }
 
     public void split(int index) {

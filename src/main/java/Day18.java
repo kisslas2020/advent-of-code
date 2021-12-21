@@ -4,8 +4,13 @@ public class Day18 {
 
     public static void main(String[] args) {
         String str = "[[[0,[5,8]],[[1,7],[9,6]]],[[4,[1,2]],[[1,4],2]]]";
+        number = createPairs(str);
+        System.out.println();
+    }
+
+    private static Pairs createPairs(String str) {
         int index = 0;
-        number = null;
+        Pairs res = null;
         Pairs current = null;
         for (int i = 0; i < str.length(); i++) {
             String c = str.substring(i, i + 1);
@@ -16,8 +21,8 @@ public class Day18 {
                 index = 1;
             } else if (c.matches("\\[")) {
                 Pairs next = new Pairs();
-                if (number == null) {
-                    number = next;
+                if (res == null) {
+                    res = next;
                     current = next;
                 } else {
                     current.addChild(next, index);
@@ -29,7 +34,7 @@ public class Day18 {
                 current = current.getParent();
             }
         }
-        System.out.println();
+        return res;
     }
 
     private static void add(Pairs p1, Pairs p2) {

@@ -3,8 +3,10 @@ public class Day18 {
     static Pairs number;
 
     public static void main(String[] args) {
-        String str = "[[[0,[5,8]],[[1,7],[9,6]]],[[4,[1,2]],[[1,4],2]]]";
+        String str = "[[[[8,7],[7,7]],[[8,6],[7,7]]],[[[0,7],[6,6]],[8,7]]]";
         number = createPairs(str);
+        walk(number, 0);
+        int mag = number.calculateMagnitude();
         System.out.println();
     }
 
@@ -37,16 +39,19 @@ public class Day18 {
         return res;
     }
 
-    private static void add(Pairs p1, Pairs p2) {
-        Pairs outer = new Pairs();
-        outer.addChild(p1, 0);
-        outer.addChild(p2, 1);
+    private static void add(Pairs p) {
+        Pairs newNumber = new Pairs();
+        newNumber.addChild(number, 0);
+        newNumber.addChild(p, 1);
+        number = newNumber;
     }
 
     private static void walk(Pairs pairs, int wrap) {
+        wrap++;
         for (int i = 0; i < 2; i++) {
             if (pairs.getPair()[i] != null) {
-                if (wrap >= 4) {
+                int n = pairs.getPair()[i];
+                if (wrap > 4) {
                     explode();
                     return;
                 }
@@ -54,7 +59,10 @@ public class Day18 {
                     split();
                     return;
                 }
+            } else {
+                walk(pairs.getChild()[i], wrap);
             }
+
         }
     }
 
@@ -79,6 +87,14 @@ class Pairs {
 
     public void addNumber(int number, int index) {
         this.pair[index] = number;
+    }
+
+    public int calculateMagnitude() {
+        int m1 = 0;
+        int m2 = 0;
+        m1 = this.pair[0] == null ? this.child[0].calculateMagnitude() : this.pair[0];
+        m2 = this.pair[1] == null ? this.child[1].calculateMagnitude() : this.pair[1];
+        return 3 * m1 + 2 * m2;
     }
 
     public Pairs[] getChild() {

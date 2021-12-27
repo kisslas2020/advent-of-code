@@ -24,7 +24,7 @@ public class Day19 {
                     scanners.add(wsc);
                     continue;
                 }
-                wsc.addBeacon(new Beacon(line.split(",")));
+                wsc.addBeacon(new Beacon(new Position(line.split(","))));
             }
         } catch (FileNotFoundException e) {
             System.out.println("File not found: " + path);
@@ -32,43 +32,32 @@ public class Day19 {
         System.out.println("ready");
     }
 
+    private static boolean search12(WaterScanner wsc) {
+
+    }
+
+    private static WaterScanner rotate(int index) {
+
+    }
+
 
 }
 
 class WaterScanner {
 
-    private int x;
-    private int y;
-    private int z;
+    private Position position;
     private Set<Beacon> beacons = new HashSet<>();
-
 
     public void addBeacon(Beacon beacon) {
         beacons.add(beacon);
     }
 
-    public int getX() {
-        return x;
+    public Position getPosition() {
+        return position;
     }
 
-    public void setX(int x) {
-        this.x = x;
-    }
-
-    public int getY() {
-        return y;
-    }
-
-    public void setY(int y) {
-        this.y = y;
-    }
-
-    public int getZ() {
-        return z;
-    }
-
-    public void setZ(int z) {
-        this.z = z;
+    public void setPosition(Position position) {
+        this.position = position;
     }
 
     public Set<Beacon> getBeacons() {
@@ -78,46 +67,35 @@ class WaterScanner {
     public void setBeacons(Set<Beacon> beacons) {
         this.beacons = beacons;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        WaterScanner that = (WaterScanner) o;
+        return position.equals(that.position);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(position);
+    }
 }
 
 class Beacon {
 
-    private int x;
-    private int y;
-    private int z;
+    private Position position;
 
-    public Beacon(int x, int y, int z) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
+    public Beacon(Position position) {
+        this.position = position;
     }
 
-    public Beacon(String[] line) {
-        this(Integer.parseInt(line[0]), Integer.parseInt(line[1]), Integer.parseInt(line[2]));
+    public Position getPosition() {
+        return position;
     }
 
-    public int getX() {
-        return x;
-    }
-
-    public void setX(int x) {
-        this.x = x;
-    }
-
-    public int getY() {
-        return y;
-    }
-
-    public void setY(int y) {
-        this.y = y;
-    }
-
-    public int getZ() {
-        return z;
-    }
-
-    public void setZ(int z) {
-        this.z = z;
+    public void setPosition(Position position) {
+        this.position = position;
     }
 
     @Override
@@ -125,7 +103,49 @@ class Beacon {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Beacon beacon = (Beacon) o;
-        return x == beacon.x && y == beacon.y && z == beacon.z;
+        return position.equals(beacon.position);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(position);
+    }
+}
+
+class Position {
+
+    private final int y;
+    private final int x;
+    private final int z;
+
+    public Position(int y, int x, int z) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
+
+    public Position(String[] line) {
+        this(Integer.parseInt(line[0]), Integer.parseInt(line[1]), Integer.parseInt(line[2]));
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public int getZ() {
+        return z;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Position position = (Position) o;
+        return x == position.x && y == position.y && z == position.z;
     }
 
     @Override

@@ -1,6 +1,7 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Day19 {
 
@@ -9,6 +10,7 @@ public class Day19 {
     public static void main(String[] args) {
         String path = "src/main/resources/day19.txt";
         loadScanners(path);
+        searchScanners();
     }
 
     private static void loadScanners(String path) {
@@ -36,12 +38,38 @@ public class Day19 {
         for (int i = 1; i < scanners.size(); i++) {
             WaterScanner w = scanners.get(i);
             Position p = compareScanners(WSC, w);
-            w.setPosition(p);
+            if (p != null) {
+                w.setPosition(p);
+            }
         }
     }
 
-    private static Position compareScanners(WaterScanner wsc, WaterScanner w) {
+    private static Position compareScanners(WaterScanner WSC, WaterScanner w) {
         Map<Position, Integer> distances = new HashMap<>();
+        for (Beacon BEACON : WSC.getBeacons()) {
+            Position pBEACON = BEACON.getPosition();
+            for (Beacon wBeacon : w.getBeacons()) {
+                Position original = wBeacon.getPosition();
+                for (int i = 0; i < 24; i++) {
+                    Position rotated = rotate(i, original.getX(), original.getY(), original.getZ());
+                    Position diff = distance(pBEACON, rotated);
+                    if (diff.getX() == 68) {
+                        System.out.printf("X: %d, Y: %d, Z: %d", diff.getX(), diff.getY(), diff.getZ());
+                        System.out.println();
+                    }
+                    Integer n = distances.getOrDefault(diff, 0);
+                    distances.put(diff, n + 1);
+                }
+            }
+        }
+        List<Integer> pos = distances.keySet().stream().filter(p -> distances.get(p) > 11).map(p -> distances.get(p)).collect(Collectors.toList());
+        Position res = null;
+        for (Position p : distances.keySet()) {
+            if (distances.get(p) >= 12) {
+                res = p;
+            }
+        }
+        return res;
     }
 
     private static Position rotate(int num, int x, int y, int z) {
@@ -94,7 +122,16 @@ public class Day19 {
                 return new Position(y, -z, x);
             case 23:
                 return new Position(z, -x, y);
+            default:
+                return null;
         }
+    }
+
+    private static Position distance(Position pBEACON, Position rotated) {
+        int x = pBEACON.getX() - rotated.getX();
+        int y = pBEACON.getY() - rotated.getY();
+        int z = pBEACON.getZ() - rotated.getZ();
+        return new Position(x, y, z);
     }
 
 }

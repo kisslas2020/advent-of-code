@@ -29,17 +29,73 @@ public class Day19 {
         } catch (FileNotFoundException e) {
             System.out.println("File not found: " + path);
         }
-        System.out.println("ready");
     }
 
-    private static boolean search12(WaterScanner wsc) {
-
+    private static void searchScanners() {
+        WaterScanner WSC = scanners.get(0);
+        for (int i = 1; i < scanners.size(); i++) {
+            WaterScanner w = scanners.get(i);
+            Position p = compareScanners(WSC, w);
+            w.setPosition(p);
+        }
     }
 
-    private static WaterScanner rotate(int index) {
-
+    private static Position compareScanners(WaterScanner wsc, WaterScanner w) {
+        Map<Position, Integer> distances = new HashMap<>();
     }
 
+    private static Position rotate(int num, int x, int y, int z) {
+        switch (num) {
+            case 0:
+                return new Position(x, y, z);
+            case 1:
+                return new Position(z, y, -x);
+            case 2:
+                return new Position(x, z, -y);
+            case 3:
+                return new Position(-z, y, x);
+            case 4:
+                return new Position(-x, y, -z);
+            case 5:
+                return new Position(y, -z, y);
+            case 6:
+                return new Position(y, -x, z);
+            case 7:
+                return new Position(y, -z, -x);
+            case 8:
+                return new Position(z, -x, -y);
+            case 9:
+                return new Position(-y, x, -z);
+            case 10:
+                return new Position(-y, z, x);
+            case 11:
+                return new Position(-z, x, y);
+            case 12:
+                return new Position(-x, -y, z);
+            case 13:
+                return new Position(-z, -y, -x);
+            case 14:
+                return new Position(-x, -z, -y);
+            case 15:
+                return new Position(x, y, -z);
+            case 16:
+                return new Position(z, y, x);
+            case 17:
+                return new Position(x, z, y);
+            case 18:
+                return new Position(-y, x, z);
+            case 19:
+                return new Position(-y, z, -x);
+            case 20:
+                return new Position(-z, x, -y);
+            case 21:
+                return new Position(y, -x, -z);
+            case 22:
+                return new Position(y, -z, x);
+            case 23:
+                return new Position(z, -x, y);
+        }
+    }
 
 }
 
@@ -114,11 +170,11 @@ class Beacon {
 
 class Position {
 
-    private final int y;
     private final int x;
+    private final int y;
     private final int z;
 
-    public Position(int y, int x, int z) {
+    public Position(int x, int y, int z) {
         this.x = x;
         this.y = y;
         this.z = z;
